@@ -227,10 +227,28 @@ def neural_network_learn(dataset_inner, number_result_columns):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 42)
 
-    regr = MLPRegressor(hidden_layer_sizes = (100, 100), random_state = 2).fit(X_train, y_train) # Используем 2 скрытых слоя по 100 нейронов
-    
-    print(regr.predict(X_test))
-    print(r2_score(y_test, regr.predict(X_test)))
+    list_parameters = {}
+    for i in range(y_train.shape[1]):
+        regr = MLPRegressor(hidden_layer_sizes = (100, 100), random_state = 2).fit(X_train, y_train) # Используем 2 скрытых слоя по 100 нейронов
+        r2 = r2_score(y_test[:,i], regr.predict(X_test))
+        mae = mean_absolute_error(y_test[:,i], regr.predict(X_test))
+        list_parameters[i] = ['R2_Y%s'%str(i + 1), 'MAE_Y%s'%str(i + 1)]
+        list_parameters[i + y_train.shape[1]] = [r2, mae]
+        
+        print(list_parameters[i])
+        print(list_parameters[i + y_train.shape[1]])
+
+    fig = plt.figure(figsize=(3, 10))
+
+    for i in range(y_train.shape[1]):
+        ax = fig.add_subplot(2, y_train.shape[1], i + 1)
+        ax.bar(list_parameters[i], list_parameters[i + y_train.shape[1]], )
+        ax.set_xlabel('MLPR')
+        plt.ylim(-0.5, 0.5)
+        plt.xlim(-0.5, 1.5)
+
+    plt.show()
+    print()
 
 def main():
     path = input("Введите путь к папке с Datasets: ") #Ввод пути к Datasets
